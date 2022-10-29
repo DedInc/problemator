@@ -1,43 +1,39 @@
 from requests import Session, get
 from user_agent import generate_user_agent
 
+categories = {}
+i = 0
+
+def searchCategories(cats):
+    global categories, i
+    for c in cats:
+        if 'Subcategories' in c:
+            searchCategories(c['Subcategories'])
+        else:
+            categories[c['LinkTo']] = {'name': c['Display'], 'id': i}
+            i += 1
 
 def loadCategories():
-    global categories
-    categories = {}
     r = get('https://www.wolframalpha.com/input/wpg/categories.jsp?load=true',
             headers={'User-Agent': generate_user_agent()}).json()
-    i = 0
-    for c in r['Categories']['Categories']:
-        sec = c['Display']
-        categories[sec] = dict()
-        for sb in c['Subcategories']:
-            categories[sec][sb['Display']] = dict()
-            for sbb in sb['Subcategories']:
-                categories[sec][sb['Display']][sbb['Display']] = {'type': sbb['LinkTo'], 'id': i}
-                i += 1
+    searchCategories(r['Categories']['Categories'])
 
 
 def getCategories():
-    global categories
     return categories
 
 
 def getCategoryByID(id):
-    for cat in categories:
-        for c in categories[cat]:
-            for cc in categories[cat][c]:
-                if id == categories[cat][c][cc]['id']:
-                    return categories[cat][c][cc]['type']
+    for cat in categories.keys():
+        if id == categories[cat]['id']:
+            return cat
     return None
 
 
 def getCategoryByName(name):
-    for cat in categories:
-        for c in categories[cat]:
-            for cc in categories[cat][c]:
-                if name == cc:
-                    return categories[cat][c][cc]['type']
+    for cat in categories.keys():
+        if name == categories[cat]['name']:
+            return cat
     return None
 
 
