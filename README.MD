@@ -17,9 +17,12 @@ category = getCategoryByName('Add')  # Get Addition by Name
 # LVL: 0 - Beginner; 1 - Intermediate; 2 - Advanced
 # Count - Number of problems
 # type - Category
-problems = generateProblem(count=10, lvl=0, type=category)
+problems = generateProblems(count=10, lvl=0, type=category)
 problem = choice(problems)  # Get random problem
 
-print(problem['text'])  # Text of the problem
-print(problem['image'])  # Image of the problem
+print(problem['problem']['text'])  # Text of the problem
+print(problem['problem']['image'])  # Image of the problem
+
+print(problem['hint'])  # Image of the hint
+print(problem['solution'])  # Image of the solution
 ```

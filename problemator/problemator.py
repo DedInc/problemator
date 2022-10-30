@@ -42,16 +42,21 @@ def loadSession():
     loadCategories()
     s = Session()
     s.headers['User-Agent'] = generate_user_agent()
-    s.headers[
-        'Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
+    s.headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9'
     s.headers['Accept-Encoding'] = 'gzip, deflate, br'
     s.headers['Accept-Language'] = 'ru-RU,ru;q=0.9,kk-KZ;q=0.8,kk;q=0.7,en-US;q=0.6,en;q=0.5'
 
     API = s.get('https://www.wolframalpha.com/input/wpg/categories.jsp?load=true').json()['domain']
 
 
-def generateProblem(lvl=0, type='IntegerAddition', count=1):
+def generateProblems(lvl=0, type='IntegerAddition', count=1):
     lvl = {0: 'Beginner', 1: 'Intermediate', 2: 'Advanced'}[lvl]
-    problems = s.get(f'{API}/input/wpg/problem.jsp?count={count}&difficulty={lvl}&load=1&type={type}').json()[
-        'problems']
-    return [{'text': problem['string_question'], 'image': problem['problem_image']} for problem in problems]
+    r = s.get(f'{API}/input/wpg/problem.jsp?count={count}&difficulty={lvl}&load=1&type={type}').json()
+    problems = r['problems']
+    machine = r['machine']
+    arr = []
+    for problem in problems:
+        pid = problem['problem_id']
+        r = s.get(f'https://www6b3.wolframalpha.com/input/wpg/checkanswer.jsp?attempt=1&difficulty={lvl}&load=true&problemID={pid}&query=const&s={machine}&type=InputField').json()
+        arr.append({'problem': {'text': problem['string_question'], 'image': problem['problem_image']}, 'hint': r['hint'], 'solution': r['solution']})
+    return arr
