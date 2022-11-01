@@ -20,9 +20,12 @@ category = getCategoryByName('Add')  # Get Addition by Name
 problems = generateProblems(count=10, lvl=0, type=category)
 problem = choice(problems)  # Get random problem
 
-print(problem['problem']['text'])  # Text of the problem
-print(problem['problem']['image'])  # Image of the problem
+print(problem['text'])  # Text of the problem
+print(problem['image'])  # Image of the problem
+print(problem['difficulty'])  # Difficulty of the problem
 
-print(problem['hint'])  # Image of the hint
-print(problem['solution'])  # Image of the solution
+c = checkProblem(problem, 'x+5')  # Check problem, where x+5 - answer
+print(c['correct'])  # True or False
+print(c['hint'])  # Image of the Hint
+print(c['solution'])  # Image of the Solution
 ```

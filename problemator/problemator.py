@@ -49,14 +49,17 @@ def loadSession():
     API = s.get('https://www.wolframalpha.com/input/wpg/categories.jsp?load=true').json()['domain']
 
 
+def checkProblem(problem, answer):
+    lvl = problem['difficulty']
+    pid = problem['id']
+    machine = problem['machine']
+    r = s.get(f'{API}/input/wpg/checkanswer.jsp?attempt=1&difficulty={lvl}&load=true&problemID={pid}&query={answer}&s={machine}&type=InputField').json()
+    return {'correct': r['correct'], 'hint': r['hint'], 'solution': r['solution']}
+
+
 def generateProblems(lvl=0, type='IntegerAddition', count=1):
     lvl = {0: 'Beginner', 1: 'Intermediate', 2: 'Advanced'}[lvl]
     r = s.get(f'{API}/input/wpg/problem.jsp?count={count}&difficulty={lvl}&load=1&type={type}').json()
     problems = r['problems']
     machine = r['machine']
-    arr = []
-    for problem in problems:
-        pid = problem['problem_id']
-        r = s.get(f'https://www6b3.wolframalpha.com/input/wpg/checkanswer.jsp?attempt=1&difficulty={lvl}&load=true&problemID={pid}&query=const&s={machine}&type=InputField').json()
-        arr.append({'problem': {'text': problem['string_question'], 'image': problem['problem_image']}, 'hint': r['hint'], 'solution': r['solution']})
-    return arr
+    return [{'text': problem['string_question'], 'image': problem['problem_image'], 'difficulty': lvl, 'id': problem['problem_id'], 'machine': machine} for problem in problems]
