@@ -11,14 +11,12 @@ from random import choice
 loadSession()  # Initialize
 print(getCategories())  # See categories
 
-category = getCategoryByID(0)  # Get Addition by ID
-category = getCategoryByName('Add')  # Get Addition by Name
+category = getCategory(0)  # Get Addition
 
 # LVL: 0 - Beginner; 1 - Intermediate; 2 - Advanced
 # Count - Number of problems
 # type - Category
-problems = generateProblems(count=10, lvl=0, type=category)
-problem = choice(problems)  # Get random problem
+problem = generateProblem(lvl=0, type=category) # Generate a problem
 
 print(problem['text'])  # Text of the problem
 print(problem['image'])  # Image of the problem
