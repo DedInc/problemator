@@ -5,25 +5,25 @@
 <h1 align="center"> -How to use- </h1>
 
 ```python
-from problemator import *
+from problemator import Problemator
 from random import choice
 
-loadSession()  # Initialize
-print(getCategories())  # See categories
+p = Problemator()  # Initialize
+print(p.categories)  # See categories
 
-category = getCategory(0)  # Get Addition
+category = p.get_category(0)  # Get Addition
 
 # LVL: 0 - Beginner; 1 - Intermediate; 2 - Advanced
 # Count - Number of problems
 # type - Category
-problem = generateProblem(lvl=0, type=category) # Generate a problem
+problem = p.generate_problem(lvl=0, type=category) # Generate a problem
 
 print(problem['text'])  # Text of the problem
 print(problem['image'])  # Image of the problem
 print(problem['difficulty'])  # Difficulty of the problem
 
-c = checkProblem(problem, 'x+5')  # Check problem, where x+5 - answer
-print(c['correct'])  # True or False
-print(c['hint'])  # Image of the Hint
-print(c['solution'])  # Image of the Solution
+result = p.check_problem(problem, 'x+5')  # Check problem, where x+5 - answer
+print(result['correct'])  # True or False
+print(result['hint'])  # Image of the Hint
+print(result['solution'])  # Image of the Solution
 ```

@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="problemator",
-    version="1.0.5",
+    version="1.1.0",
     author="Maehdakvan",
     author_email="visitanimation@google.com",
     description="WolframAlpha's Unlimited AI-generated practice problems and answers API wrapper.",

@@ -1,1 +1,1 @@
-from .problemator import loadSession, getCategories, getCategory, generateProblem, checkProblem
+from .problemator import Problemator
