@@ -8,17 +8,38 @@ class Problemator:
         self.categories = {}
         self.load_session()
 
-    def search_categories(self, cats):
-        for c in cats:
-            if 'Subcategories' in c:
-                self.search_categories(c['Subcategories'])
-            else:
-                self.categories[c['LinkTo']] = len(self.categories)
+    def convert_categories(self, categories_dict, id_counter=0):
+        converted_data = {}
 
-    def get_category(self, id):
-        for cat in self.categories.keys():
-            if self.categories[cat] == id:
-                return cat
+        for category in categories_dict:
+            category_name = category['Display']
+            subcategories = category.get('Subcategories', [])
+
+            if subcategories:
+                converted_subcategories, id_counter = self.convert_categories(subcategories, id_counter)
+                converted_data[category_name] = converted_subcategories
+            else:
+                linkto_id = category.get('LinkTo')
+                if linkto_id is not None:
+                    converted_data[category_name] = {'name': linkto_id, 'id': id_counter}
+                    id_counter += 1
+                else:
+                    continue
+
+        return converted_data, id_counter
+
+    def get_category(self, id, categories=None):
+        if categories is None:
+            categories = self.categories
+
+        for cat, value in categories.items():
+            if isinstance(value, dict):
+                if 'id' in value and value['id'] == id:
+                    return value['name']
+
+                subcategory_result = self.get_category(id, value)
+                if subcategory_result:
+                    return subcategory_result
 
     def load_session(self):
         self.s = Session()
@@ -28,7 +49,7 @@ class Problemator:
         self.s.headers['Accept-Language'] = 'ru-RU,ru;q=0.9,kk-KZ;q=0.8,kk;q=0.7,en-US;q=0.6,en;q=0.5'
 
         r = self.s.get('https://www.wolframalpha.com/input/wpg/categories.jsp?load=true').json()
-        self.search_categories(r['Categories']['Categories'])
+        self.categories, _ = self.convert_categories(r['Categories']['Categories'])
         self.API = r['domain']
 
     def check_problem(self, problem, answer):
@@ -38,12 +59,36 @@ class Problemator:
         for c in problem['session']:
             cookie = create_cookie(name=c['name'], value=c['value'], domain=c['domain'])
             self.s.cookies.set_cookie(cookie)
-        r = self.s.get(f'{self.API}/input/wpg/checkanswer.jsp?attempt=1&difficulty={lvl}&load=true&problemID={pid}&query={answer}&s={machine}&type=InputField').json()
-        return {'correct': r['correct'], 'hint': r['hint'], 'solution': r['solution']}
+
+        url = f'{self.API}/input/wpg/checkanswer.jsp'
+
+        params = {
+            'attempt': 1,
+            'difficulty': lvl,
+            'load': 'true',
+            'problemID': pid,
+            'query': answer,
+            's': machine,
+            'type': 'InputField'
+        }
+
+        r = self.s.get(url, params=params).json()
+        return {'correct': r['correct'], 'hint': r['hint'], 'solution': r['solution'], 'attempt': r['attempt']}
 
     def generate_problem(self, lvl=0, type='IntegerAddition'):
         lvl = {0: 'Beginner', 1: 'Intermediate', 2: 'Advanced'}[lvl]
-        r = self.s.get(f'{self.API}/input/wpg/problem.jsp?count=1&difficulty={lvl}&load=1&type={type}').json()
+
+        url = f'{self.API}/input/wpg/problem.jsp'
+
+        params = {
+            'count': 1,
+            'difficulty': lvl,
+            'load': 'true',
+            'type': type
+        }
+
+        r = self.s.get(url, params=params).json()
+
         problems = r['problems']
         machine = r['machine']
         cookies = []

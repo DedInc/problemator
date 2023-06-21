@@ -24,6 +24,7 @@ print(problem['difficulty'])  # Difficulty of the problem
 
 result = p.check_problem(problem, 'x+5')  # Check problem, where x+5 - answer
 print(result['correct'])  # True or False
+print(result['attempt'])  # Image of the Attempt
 print(result['hint'])  # Image of the Hint
 print(result['solution'])  # Image of the Solution
 ```
